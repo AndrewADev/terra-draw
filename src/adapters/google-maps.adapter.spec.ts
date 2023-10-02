@@ -1,3 +1,6 @@
+/**
+ * @jest-environment @happy-dom/jest-environment
+ */
 import { GeoJSONStoreFeatures } from "../store/store";
 import {
 	createMockLineString,
@@ -353,6 +356,99 @@ describe("TerraDrawGoogleMapsAdapter", () => {
 
 			expect(unprojected.lng).toEqual(testLng);
 			expect(unprojected.lat).toEqual(testLat);
+		});
+	});
+
+	describe("setCursor", () => {
+		it("is no-op for cursor: unset", () => {
+			const map = createMockGoogleMap() as google.maps.Map;
+			const container = {
+				offsetLeft: 0,
+				offsetTop: 0,
+				style: { removeProperty: jest.fn(), cursor: "initial" },
+			} as any;
+
+			map.getDiv = jest.fn(() => container);
+
+			// Create the adapter instance with the mocked map
+			const adapter = new TerraDrawGoogleMapsAdapter({
+				lib: {
+					OverlayView: jest.fn().mockImplementation(() => ({
+						setMap: jest.fn(),
+						getProjection: jest.fn(),
+					})),
+				} as any,
+				map,
+			});
+
+			adapter.setCursor("unset");
+
+			expect(map.getDiv).not.toHaveBeenCalled();
+			expect(container.style.removeProperty).not.toHaveBeenCalledTimes(1);
+		});
+
+		it("sets to pointer", () => {
+			const elId = "map-container";
+			const map = createMockGoogleMap() as google.maps.Map;
+			const container = {
+				...document.createElement("div"),
+				offsetLeft: 0,
+				offsetTop: 0,
+				id: elId,
+			};
+
+			map.getDiv = jest.fn(() => container);
+
+			const adapter = new TerraDrawGoogleMapsAdapter({
+				lib: {
+					OverlayView: jest.fn().mockImplementation(() => ({
+						setMap: jest.fn(),
+						getProjection: jest.fn(),
+					})),
+				} as any,
+				map,
+			});
+
+			adapter.setCursor("pointer");
+
+			expect(map.getDiv).toHaveBeenCalledTimes(1);
+			const firstSheetAndRule = document.styleSheets[0]
+				.cssRules[0] as CSSStyleRule;
+			expect(
+				firstSheetAndRule.selectorText.startsWith(`#${elId}`),
+			).toBeTruthy();
+			expect(
+				firstSheetAndRule.cssText.includes(`cursor: pointer`),
+			).toBeTruthy();
+		});
+
+		it("exits early when no update to cursor type", () => {
+			const elId = "map-container";
+			const map = createMockGoogleMap() as google.maps.Map;
+			const container = {
+				...document.createElement("div"),
+				offsetLeft: 0,
+				offsetTop: 0,
+				id: elId,
+			};
+
+			map.getDiv = jest.fn(() => container);
+
+			const adapter = new TerraDrawGoogleMapsAdapter({
+				lib: {
+					OverlayView: jest.fn().mockImplementation(() => ({
+						setMap: jest.fn(),
+						getProjection: jest.fn(),
+					})),
+				} as any,
+				map,
+			});
+
+			adapter.setCursor("pointer");
+			adapter.setCursor("pointer");
+			adapter.setCursor("pointer");
+
+			expect(map.getDiv).toHaveBeenCalledTimes(1);
 		});
 	});
 
