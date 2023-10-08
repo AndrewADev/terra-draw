@@ -417,12 +417,12 @@ export class TerraDrawGoogleMapsAdapter extends TerraDrawBaseAdapter {
 	 * @returns void
 	 * */
 	public clear() {
+		// Clean up state first
 		if (this._currentModeCallbacks) {
-			// Clean up state first
 			this._currentModeCallbacks.onClear();
-
-			// Then clean up rendering
-			this.clearLayers();
 		}
+
+		// Then clean up rendering
+		this.clearLayers();
 	}
 }

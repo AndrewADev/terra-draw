@@ -768,6 +768,56 @@ describe("TerraDrawGoogleMapsAdapter", () => {
 
 			adapter.clear();
 		});
+
+		it("clears any added features", () => {
+			const sq1 = createMockPolygonSquare("square-1");
+			Object.assign(sq1, { getId: () => sq1.id });
+			const sq2 = createMockPolygonSquare("square-2", 2, 4);
+			Object.assign(sq2, { getId: () => sq2.id });
+
+			const addGeoJsonMock = jest.fn();
+			const removeMock = jest.fn();
+			const mockMap = createMockGoogleMap({
+				data: {
+					addListener: jest.fn(),
+					addGeoJson: addGeoJsonMock,
+					forEach: (cb: (f: any) => void) => [sq1, sq2].forEach(cb),
+					remove: removeMock,
+					setStyle: jest.fn(),
+				} as any,
+			});
+
+			const adapter = new TerraDrawGoogleMapsAdapter({
+				lib: {
+					OverlayView: jest.fn(() => ({
+						setMap: jest.fn(),
+						getProjection: jest.fn(),
+					})),
+				} as any,
+				map: mockMap,
+			});
+
+			adapter.render(
+				{
+					unchanged: [],
+					created: [
+						createMockPolygonSquare("square-1") as GeoJSONStoreFeatures,
+						createMockPolygonSquare("square-2", 2, 4) as GeoJSONStoreFeatures,
+					],
+					deletedIds: [],
+					updated: [],
+				},
+				{
+					test: jest.fn(() => ({} as any)),
+				}
+			);
+
+			expect(addGeoJsonMock).toHaveBeenCalled();
+
+			adapter.clear();
+
+			expect(removeMock).toBeCalledTimes(2);
+		});
 	});
 });
 
