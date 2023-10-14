@@ -54,6 +54,7 @@
 		"@commitlint/cli": "^17.1.2",
 		"@commitlint/config-conventional": "^17.1.0",
 		"@googlemaps/js-api-loader": "^1.14.3",
+		"@happy-dom/jest-environment": "^12.9.1",
 		"@swc/jest": "^0.2.24",
 		"@types/geojson": "^7946.0.8",
 		"@types/google.maps": "^3.49.2",
