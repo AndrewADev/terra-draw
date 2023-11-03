@@ -20,11 +20,23 @@ jobs:
           node-version: "18.x"
       - name: Install Parent Folder
         run: npm install
-      - name: Ensure no package-lock.json changes
-        run: git diff --exit-code
-      - name: Build
-        run: npm run build
       - name: Test
         run: npm run test
         env:
           CI: true
+
+  # Verify that the project builds
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18.x"
+      - name: Install Parent Folder
+        run: npm install
+      - name: Ensure no package-lock.json changes
+        run: git diff --exit-code
+      - name: Build
+        run: npm run build
